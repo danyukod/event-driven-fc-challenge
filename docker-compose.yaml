@@ -5,17 +5,24 @@ services:
     build: wallet-core
     platform: linux/amd64
     volumes:
-      - wallet-core:/wallet-core
+      - ./wallet-core:/wallet-core
     ports:
       - 8080:8080
+    depends_on:
+      - mysql
+      - kafka
+
 
   wallet-core-event-listener:
     build: wallet-core-event-listener
     platform: linux/amd64
     volumes:
-      - wallet-core-event-listener:/wallet-core-event-listener
+      - ./wallet-core-event-listener:/wallet-core-event-listener
     ports:
       - 8081:8081
+    depends_on:
+      - mysql
+      - kafka
 
   mysql:
     image: mysql:5.7

@@ -11,6 +11,7 @@ import (
 	"github.com/danyukod/wallet-core-event-listener/internal/web"
 	"github.com/danyukod/wallet-core-event-listener/internal/web/webserver"
 	"github.com/danyukod/wallet-core-event-listener/pkg/kafka"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
