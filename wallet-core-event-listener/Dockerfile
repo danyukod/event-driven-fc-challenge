@@ -8,7 +8,4 @@ RUN apt-get update && apt-get install -y librdkafka-dev
 ADD . .
 
 # Build the application
-RUN go build -o main cmd/walletcorelistener/main.go
-
-# Run the binary program produced by `go build`
-CMD ["./main"]
+RUN go build -o listener-main cmd/walletcorelistener/main.go

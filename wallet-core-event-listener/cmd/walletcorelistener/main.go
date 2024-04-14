@@ -15,7 +15,8 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "mysql", "3306", "wallet"))
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "mysql", "3306", "wallet")
+	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
 		panic(err)
 	}
@@ -24,15 +25,14 @@ func main() {
 		"bootstrap.servers": "kafka:29092",
 		"group.id":          "wallet",
 	}
-
 	balanceDb := database.NewBalanceDB(db)
 
 	kafkaConsumer := kafka.NewConsumer(&configMap, []string{"balances"})
 	createBalanceUseCase := create_balance.NewCreateBalanceUseCase(balanceDb)
 	kafkaListener := listener.NewCreateBalanceKafkaListener(kafkaConsumer, createBalanceUseCase)
-	kafkaListener.Listen()
+	go kafkaListener.Listen()
 
-	webserver := webserver.NewWebServer(":8081")
+	webserver := webserver.NewWebServer(":3003")
 	getBalanceUseCase := get_balance.NewGetBalanceUseCase(balanceDb)
 	balanceHandler := web.NewWebBalanceHandler(*getBalanceUseCase)
 
@@ -40,4 +40,5 @@ func main() {
 
 	fmt.Println("Server is running")
 	webserver.Start()
+
 }

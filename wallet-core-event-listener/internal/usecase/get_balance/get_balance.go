@@ -1,6 +1,8 @@
 package get_balance
 
-import "github.com/danyukod/wallet-core-event-listener/internal/gateway"
+import (
+	"github.com/danyukod/wallet-core-event-listener/internal/gateway"
+)
 
 type GetBalanceInputDTO struct {
 	AccountID string `json:"account_id"`

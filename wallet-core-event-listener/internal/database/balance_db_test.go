@@ -24,7 +24,7 @@ func (s *BalanceDBTestSuite) SetupSuite() {
 
 func (s *BalanceDBTestSuite) TearDownSuite() {
 	defer s.db.Close()
-	s.db.Exec("DROP TABLE balances")
+	s.db.Exec("DROP TABLE balance")
 }
 
 func TestBalanceDBTestSuite(t *testing.T) {

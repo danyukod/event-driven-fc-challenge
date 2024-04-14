@@ -3,28 +3,30 @@ version: '3'
 services:
   wallet-core:
     build: wallet-core
+    container_name: wallet-core
     platform: linux/amd64
-    volumes:
-      - ./wallet-core:/wallet-core
     ports:
-      - 8080:8080
+      - 3000:3000
     depends_on:
       - mysql
       - kafka
-
+    working_dir: /wallet-core
+    command: [ "./wait-for-it.sh", "kafka:29092", "--", "./main" ]
 
   wallet-core-event-listener:
     build: wallet-core-event-listener
+    container_name: wallet-core-event-listener
     platform: linux/amd64
-    volumes:
-      - ./wallet-core-event-listener:/wallet-core-event-listener
     ports:
-      - 8081:8081
+      - 3003:3003
     depends_on:
-      - mysql
-      - kafka
+        - mysql
+        - kafka
+    working_dir: /wallet-core-event-listener
+    command: [ "./wait-for-it.sh", "kafka:29092", "--", "./listener-main" ]
 
   mysql:
+    container_name: mysql
     image: mysql:5.7
     platform: linux/amd64
     environment:
@@ -34,7 +36,7 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - .docker/mysql:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
 
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"
@@ -56,13 +58,15 @@ services:
       # Use kafka:29092 for connections internal on the docker network
       # See https://rmoff.net/2018/08/02/kafka-listeners-explained/ for details
       - '9092:9092'
+      - '29093:29093'
+      - '29092:29092'
     environment:
       TZ: Sao_Paulo/Brazil
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_LOCAL_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092,PLAINTEXT_LOCAL_HOST://localhost:29093
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1

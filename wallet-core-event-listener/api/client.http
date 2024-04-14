@@ -1,0 +1,7 @@
+GET http://localhost:8080/balances/client1 HTTP/1.1
+Content-Type: application/json
+
+###
+
+GET http://localhost:8080/balances/client2 HTTP/1.1
+Content-Type: application/json

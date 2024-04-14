@@ -21,12 +21,12 @@ type CreateClientOutputDTO struct {
 }
 
 type CreateClientUseCase struct {
-	ClientGateway   gateway.ClientGateway
+	ClientGateway gateway.ClientGateway
 }
 
 func NewCreateClientUseCase(clientGateway gateway.ClientGateway) *CreateClientUseCase {
 	return &CreateClientUseCase{
-		ClientGateway:   clientGateway,
+		ClientGateway: clientGateway,
 	}
 }
 

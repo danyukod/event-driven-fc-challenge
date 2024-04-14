@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com.br/devfullcycle/fc-ms-wallet/internal/usecase/create_deposit"
 
 	"github.com.br/devfullcycle/fc-ms-wallet/internal/database"
 	"github.com.br/devfullcycle/fc-ms-wallet/internal/event"
@@ -21,7 +22,8 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "mysql", "3306", "wallet"))
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "mysql", "3306", "wallet")
+	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
 		panic(err)
 	}
@@ -55,15 +57,18 @@ func main() {
 	createTransactionUseCase := create_transaction.NewCreateTransactionUseCase(uow, eventDispatcher, transactionCreatedEvent, balanceUpdatedEvent)
 	createClientUseCase := create_client.NewCreateClientUseCase(clientDb)
 	createAccountUseCase := createaccount.NewCreateAccountUseCase(accountDb, clientDb)
+	createDepositUseCase := create_deposit.NewCreateDepositUseCase(accountDb)
 
-	webserver := webserver.NewWebServer(":8080")
+	webserver := webserver.NewWebServer(":3000")
 
 	clientHandler := web.NewWebClientHandler(*createClientUseCase)
 	accountHandler := web.NewWebAccountHandler(*createAccountUseCase)
 	transactionHandler := web.NewWebTransactionHandler(*createTransactionUseCase)
+	depositHandler := web.NewDepositHandler(*createDepositUseCase)
 
 	webserver.AddHandler("/clients", clientHandler.CreateClient)
 	webserver.AddHandler("/accounts", accountHandler.CreateAccount)
+	webserver.AddHandler("/deposit", depositHandler.CreateDeposit)
 	webserver.AddHandler("/transactions", transactionHandler.CreateTransaction)
 
 	fmt.Println("Server is running")
